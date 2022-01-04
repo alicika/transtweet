@@ -1,7 +1,5 @@
-use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tokio;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(dead_code)]
@@ -16,11 +14,19 @@ async fn main() -> Result<(), reqwest::Error> {
     let v = std::env::args().nth(1);
 
     // if there is a searching query given as the first argument,
-    // set it as a parameter
+    // then set it as a parameter
     let url = match v {
-        None => "https://api.twitter.com/1.1/search/tweets.json".to_string(),
-        Some(query) => format!("https://api.twitter.com/1.1/search/tweets.json?{}", query),
+        None => "https://api.twitter.com/1.1/search/tweets.json?lang=ja".to_string(),
+        Some(query) => format!(
+            "https://api.twitter.com/1.1/search/tweets.json?lang=ja&q={}",
+            query
+        ),
     };
+
+    //let token = std::env::var("TOKEN").unwrap();
+    //let token = format!("Bearer {}", token);
+    //let client = reqwest::Client::new().get(&url).header("authorization", token);
+    //println!("{:#?}", client);
 
     let resp = t
         .get(&url)
@@ -29,10 +35,6 @@ async fn main() -> Result<(), reqwest::Error> {
         .json::<HashMap<String, String>>()
         .await?;
     println!("{:#?}", resp);
-
-    let token = std::env::var("TOKEN").unwrap();
-    let token = format!("Bearer {}", token);
-    let client = reqwest::Client::new().get(&url).header("authorization", token);
 
     Ok(())
 }
