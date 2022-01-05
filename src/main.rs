@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use url::Url;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(dead_code)]
@@ -23,6 +24,7 @@ async fn main() -> Result<(), reqwest::Error> {
         ),
     };
 
+    let url = Url::parse(&url)?;
     //let token = std::env::var("TOKEN").unwrap();
     //let token = format!("Bearer {}", token);
     //let client = reqwest::Client::new().get(&url).header("authorization", token);
