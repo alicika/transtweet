@@ -24,14 +24,15 @@ async fn main() -> Result<(), reqwest::Error> {
         ),
     };
 
-    let url = Url::parse(&url)?;
+    let url = Url::parse(&url).unwrap();
+
     //let token = std::env::var("TOKEN").unwrap();
     //let token = format!("Bearer {}", token);
     //let client = reqwest::Client::new().get(&url).header("authorization", token);
     //println!("{:#?}", client);
 
     let resp = t
-        .get(&url)
+        .get(url)
         .send()
         .await?
         .json::<HashMap<String, String>>()
