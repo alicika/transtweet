@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use url::Url;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(dead_code)]
@@ -24,15 +23,14 @@ async fn main() -> Result<(), reqwest::Error> {
         ),
     };
 
-    let url = Url::parse(&url).unwrap();
-
-    //let token = std::env::var("TOKEN").unwrap();
-    //let token = format!("Bearer {}", token);
+    let token = std::env::var("TOKEN").unwrap_or("PSUEDO-TOKEN");
+    let token = format!("Bearer {}", token);
     //let client = reqwest::Client::new().get(&url).header("authorization", token);
     //println!("{:#?}", client);
 
     let resp = t
         .get(url)
+        .header("authorization", token)
         .send()
         .await?
         .json::<HashMap<String, String>>()
