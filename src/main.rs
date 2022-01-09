@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use dotenv;
+use once_cell::sync::Lazy;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(dead_code)]
@@ -23,7 +25,7 @@ async fn main() -> Result<(), reqwest::Error> {
         ),
     };
 
-    let token = std::env::var("TOKEN").unwrap_or("PSUEDO-TOKEN");
+    let token = std::env::var("TOKEN").unwrap_or("PSUEDO-TOKEN".to_string());
     let token = format!("Bearer {}", token);
     //let client = reqwest::Client::new().get(&url).header("authorization", token);
     //println!("{:#?}", client);
