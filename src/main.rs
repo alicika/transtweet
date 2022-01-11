@@ -1,12 +1,14 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use url::Url;
+use reqwest;
+use once_cell::sync::Lazy;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(dead_code)]
 struct TweetBody<'a> {
     txt: &'a str,
 }
+static BEARER: Lazy<String> = Lazy::new(|| std::env::var(API_KEY));
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
