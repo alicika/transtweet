@@ -3,12 +3,9 @@ use std::collections::HashMap;
 use reqwest;
 use once_cell::sync::Lazy;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[allow(dead_code)]
-struct TweetBody<'a> {
-    txt: &'a str,
-}
-static BEARER: Lazy<String> = Lazy::new(|| std::env::var(API_KEY));
+static API_KEY: Lazy<String> = Lazy::new(|| std::env::var(API_KEY));
+static API_KEY_SEC: Lazy<String> = Lazy::new(|| std::env::var(API_KEY_SEC));
+static BEARER: Lazy<String> = Lazy::new(|| std::env::var(BEARER_TOKEN));
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
@@ -26,7 +23,7 @@ async fn main() -> Result<(), reqwest::Error> {
         ),
     };
 
-    let url = Url::parse(&url)?;
+    //let url = Url::parse(&url)?;
     //let token = std::env::var("TOKEN").unwrap();
     //let token = format!("Bearer {}", token);
     //let client = reqwest::Client::new().get(&url).header("authorization", token);
