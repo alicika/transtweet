@@ -1,12 +1,19 @@
+use error_chain::error_chain;
 use once_cell::sync::Lazy;
 use reqwest;
 use reqwest::header::{Authorization, UserAgent};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-static API_KEY: Lazy<String> = Lazy::new(|| std::env::var(API_KEY));
-static API_KEY_SEC: Lazy<String> = Lazy::new(|| std::env::var(API_KEY_SEC));
-static BEARER: Lazy<String> = Lazy::new(|| std::env::var(BEARER_TOKEN));
+static API_KEY: Lazy<Result<String, _>> = Lazy::new(|| std::env::var(API_KEY));
+static API_KEY_SEC: Lazy<Result<String, _>> = Lazy::new(|| std::env::var(API_KEY_SEC));
+static BEARER: Lazy<Result<String, _>> = Lazy::new(|| std::env::var(BEARER_TOKEN));
+
+error_chain! {
+    foreign_links {
+        EnvVar(env::VarError);
+        HttpRequest(reqwest::Error);
+    }
+}
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
@@ -26,8 +33,7 @@ async fn main() -> Result<(), reqwest::Error> {
 
     let resp = t
         .get(&url)
-        .header(UserAgent::new("Rust-test"))
-        .header(Authorization(Bearer { token: BEARER }))
+        .bearer_auth(from_env("BEARER_TOKEN"))
         .send()
         .await?
         .json::<HashMap<String, String>>()
