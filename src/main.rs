@@ -1,12 +1,12 @@
 use error_chain::error_chain;
 use once_cell::sync::Lazy;
 use reqwest;
-use reqwest::header::{Authorization, UserAgent};
+use reqwest::header::Authorization;
 use std::collections::HashMap;
 
-static API_KEY: Lazy<Result<String, _>> = Lazy::new(|| std::env::var(API_KEY));
-static API_KEY_SEC: Lazy<Result<String, _>> = Lazy::new(|| std::env::var(API_KEY_SEC));
-static BEARER: Lazy<Result<String, _>> = Lazy::new(|| std::env::var(BEARER_TOKEN));
+static API_KEY: Lazy<String> = Lazy::new(|| std::env::var(API_KEY).unwrap_or("DUMMY"));
+static API_KEY_SEC: Lazy<String> = Lazy::new(|| std::env::var(API_KEY_SEC).unwrap_or("DUMMY"));
+static BEARER: Lazy<String> = Lazy::new(|| std::env::var(BEARER_TOKEN).unwrap_or("DUMMY"));
 
 error_chain! {
     foreign_links {
@@ -16,7 +16,7 @@ error_chain! {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
+async fn main() -> Result<(), foreign_links> {
     let t = reqwest::Client::new();
 
     let v = std::env::args().nth(1);
@@ -24,7 +24,7 @@ async fn main() -> Result<(), reqwest::Error> {
     // if there is a searching query given as the first argument,
     // then set it as a parameter
     let url = match v {
-        None => "https://api.twitter.com/1.1/search/tweets.json?lang=ja".to_string(),
+        None => "https://api.twitter.com/1.1/search/tweets.json?lang=ja&q=twitter".to_string(),
         Some(query) => format!(
             "https://api.twitter.com/1.1/search/tweets.json?lang=ja&q={}",
             query
