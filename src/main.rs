@@ -2,10 +2,10 @@ use error_chain::error_chain;
 use once_cell::sync::Lazy;
 use reqwest;
 use reqwest::header::Authorization;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-static API_KEY: Lazy<String> = Lazy::new(|| std::env::var(API_KEY).unwrap_or("DUMMY"));
-static API_KEY_SEC: Lazy<String> = Lazy::new(|| std::env::var(API_KEY_SEC).unwrap_or("DUMMY"));
+static KEY: Lazy<String> = Lazy::new(|| std::env::var(API_KEY).unwrap_or("DUMMY"));
+static KEY_SEC: Lazy<String> = Lazy::new(|| std::env::var(API_KEY_SEC).unwrap_or("DUMMY"));
 static BEARER: Lazy<String> = Lazy::new(|| std::env::var(BEARER_TOKEN).unwrap_or("DUMMY"));
 
 error_chain! {
@@ -36,9 +36,9 @@ async fn main() -> Result<(), foreign_links> {
         .bearer_auth(from_env("BEARER_TOKEN"))
         .send()
         .await?
-        .json::<HashMap<String, String>>()
+        .json::<BTreeMap<String, String>>()
         .await?;
-    println!("{:#?}", resp);
+    // println!("{:#?}", resp);
 
     Ok(())
 }
