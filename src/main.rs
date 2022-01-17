@@ -1,22 +1,26 @@
 use error_chain::error_chain;
 use once_cell::sync::Lazy;
 use reqwest;
-use reqwest::header::Authorization;
+use select::document::Document;
+use select::predicate::Name;
 use std::collections::BTreeMap;
 
-static KEY: Lazy<String> = Lazy::new(|| std::env::var(API_KEY).unwrap_or("DUMMY"));
-static KEY_SEC: Lazy<String> = Lazy::new(|| std::env::var(API_KEY_SEC).unwrap_or("DUMMY"));
-static BEARER: Lazy<String> = Lazy::new(|| std::env::var(BEARER_TOKEN).unwrap_or("DUMMY"));
+
+static KEY: Lazy<String> = Lazy::new(|| std::env::var("API_KEY").unwrap_or("DUMMY".to_string()));
+static KEY_SEC: Lazy<String> =
+    Lazy::new(|| std::env::var("API_KEY_SEC").unwrap_or("DUMMY".to_string()));
+static BEARER: Lazy<String> =
+    Lazy::new(|| std::env::var("BEARER_TOKEN").unwrap_or("DUMMY".to_string()));
 
 error_chain! {
     foreign_links {
-        EnvVar(env::VarError);
+        EnvVar(std::env::VarError);
         HttpRequest(reqwest::Error);
     }
 }
 
 #[tokio::main]
-async fn main() -> Result<(), foreign_links> {
+async fn main() -> Result<()> {
     let t = reqwest::Client::new();
 
     let v = std::env::args().nth(1);
@@ -33,12 +37,25 @@ async fn main() -> Result<(), foreign_links> {
 
     let resp = t
         .get(&url)
-        .bearer_auth(from_env("BEARER_TOKEN"))
         .send()
         .await?
         .json::<BTreeMap<String, String>>()
         .await?;
-    // println!("{:#?}", resp);
+    println!("{:#?}", resp);
+
+    Ok(())
+}
+
+async fn extract_url() -> Result<()> {
+    let res = reqwest::get("https://www.rust-lang.org/en-US/")
+        .await?
+        .text()
+        .await?;
+
+    Document::from(res.as_str())
+        .find(Name("a"))
+        .filter_map(|n| n.attr("href"))
+        .for_each(|x| println!("{}", x));
 
     Ok(())
 }
