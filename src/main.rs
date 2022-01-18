@@ -5,7 +5,6 @@ use select::document::Document;
 use select::predicate::Name;
 use std::collections::BTreeMap;
 
-
 static KEY: Lazy<String> = Lazy::new(|| std::env::var("API_KEY").unwrap_or("DUMMY".to_string()));
 static KEY_SEC: Lazy<String> =
     Lazy::new(|| std::env::var("API_KEY_SEC").unwrap_or("DUMMY".to_string()));
@@ -46,16 +45,14 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn extract_url() -> Result<()> {
-    let res = reqwest::get("https://www.rust-lang.org/en-US/")
-        .await?
-        .text()
-        .await?;
+async fn extract_url(source: String) -> Result<Vec<String>> {
+    let res = reqwest::get(source).await?.text().await?;
+    let mut urls = Vec::new();
 
     Document::from(res.as_str())
         .find(Name("a"))
         .filter_map(|n| n.attr("href"))
-        .for_each(|x| println!("{}", x));
-
-    Ok(())
+        .for_each(|x| urls.push(x.to_string()));
+    //dbg!(urls)
+    Ok(urls)
 }
