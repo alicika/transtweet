@@ -45,7 +45,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn extract_url(source: String) -> Result<Vec<String>> {
+async fn extract_url(source: String) -> Option<Vec<String>> {
     let res = reqwest::get(source).await?.text().await?;
     let mut urls = Vec::new();
 
@@ -53,17 +53,18 @@ async fn extract_url(source: String) -> Result<Vec<String>> {
         .find(Name("a"))
         .filter_map(|n| n.attr("href"))
         .for_each(|x| urls.push(x.to_string()));
-    //dbg!(urls)
-    Ok(urls)
+
+    Some(urls)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::extract_url;
+    use reqwest;
+    use select::document::Document;
+    use select::predicate::Name;
+
     #[test]
-    fn it_works() {
-            assert_eq!(2 + 2, 4);
-        }
-    #[test]
-    extract_url()
+    u = extract_url("https://httpbin.org".to_string());
+    assert_eq!(u, None as Option<Vec<String>>);
 }
