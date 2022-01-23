@@ -46,13 +46,25 @@ async fn main() -> Result<()> {
 }
 
 async fn extract_url(source: String) -> Result<Vec<String>> {
-    let res = reqwest::get(source).await?.text().await?;
+    let res = reqwest::get(source).await.expect("Cannot access the resource.").text().await.expect("Cannot parse the received html.");
     let mut urls = Vec::new();
 
     Document::from(res.as_str())
         .find(Name("a"))
         .filter_map(|n| n.attr("href"))
         .for_each(|x| urls.push(x.to_string()));
-    //dbg!(urls)
+
     Ok(urls)
+}
+
+#[cfg(test)]
+mod tests {
+//    use super::*;
+
+/*     #[test]
+#     fn extract_none() {
+#         let u = extract_url("https://httpbin.org".to_string());
+#         let compare: Vec<String> = vec![];
+#         assert_eq!(u, compare);
+#     } */
 }
