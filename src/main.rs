@@ -1,4 +1,4 @@
-use error_chain::error_chain;
+use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use reqwest;
 use select::document::Document;
@@ -10,13 +10,6 @@ static KEY_SEC: Lazy<String> =
     Lazy::new(|| std::env::var("API_KEY_SEC").unwrap_or("DUMMY".to_string()));
 static BEARER: Lazy<String> =
     Lazy::new(|| std::env::var("BEARER_TOKEN").unwrap_or("DUMMY".to_string()));
-
-error_chain! {
-    foreign_links {
-        EnvVar(std::env::VarError);
-        HttpRequest(reqwest::Error);
-    }
-}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -34,6 +27,7 @@ async fn main() -> Result<()> {
         ),
     };
 
+    // It sends a request to an endpoint and parses it into BTreeMap<String, String>.
     let resp = t
         .get(&url)
         .send()
@@ -45,8 +39,15 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+/// This function extracts links from the parameter given as a string of URL.
+/// Returns a sequence of links.
 async fn extract_url(source: String) -> Result<Vec<String>> {
-    let res = reqwest::get(source).await.expect("Cannot access the resource.").text().await.expect("Cannot parse the received html.");
+    let res = reqwest::get(source)
+        .await
+        .expect("Cannot access the resource.")
+        .text()
+        .await
+        .expect("Cannot parse the received html.");
     let mut urls = Vec::new();
 
     Document::from(res.as_str())
@@ -59,12 +60,12 @@ async fn extract_url(source: String) -> Result<Vec<String>> {
 
 #[cfg(test)]
 mod tests {
-//    use super::*;
+    //    use super::*;
 
-/*     #[test]
-#     fn extract_none() {
-#         let u = extract_url("https://httpbin.org".to_string());
-#         let compare: Vec<String> = vec![];
-#         assert_eq!(u, compare);
-#     } */
+    /*   #[test]
+    fn extract_none() {
+        let u = extract_url("https://httpbin.org".to_string());
+        let compare: Vec<String> = vec![];
+        assert_eq!(u, compare);
+    } */
 }
