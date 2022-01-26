@@ -5,6 +5,7 @@ use rss::Channel;
 use select::document::Document;
 use select::predicate::Name;
 use std::collections::BTreeMap;
+use std::io::BufRead;
 
 static KEY: Lazy<String> = Lazy::new(|| std::env::var("API_KEY").unwrap_or("DUMMY".to_string()));
 static KEY_SEC: Lazy<String> =
@@ -63,7 +64,7 @@ fn create_list<F> (url: F) -> Vec<String>
     where F: BufRead + AsRef<str>
     {
     let channel = Channel::read_from(url).unwrap();
-    let items: Vec<&str> = channel
+    let items: Vec<String> = channel
         .items()
         .iter()
         .map(|item| item.title().unwrap().to_string())
