@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use once_cell::sync::Lazy;
 use reqwest;
+use rss::Channel;
 use select::document::Document;
 use select::predicate::Name;
 use std::collections::BTreeMap;
@@ -56,6 +57,18 @@ async fn extract_url(source: String) -> Result<Vec<String>> {
         .for_each(|x| urls.push(x.to_string()));
 
     Ok(urls)
+}
+
+fn create_list<F> (url: F) -> Vec<String>
+    where F: BufRead + AsRef<str>
+    {
+    let channel = Channel::read_from(url).unwrap();
+    let items: Vec<&str> = channel
+        .items()
+        .iter()
+        .map(|item| item.title().unwrap().to_string())
+        .collect();
+    items
 }
 
 #[cfg(test)]
